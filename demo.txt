@@ -1,22 +1,22 @@
 https://disk.yandex.ru/d/S6zbMtFyLmvT-A
 
-nano /home/User/parrot.sh
+nano /home/user/parrot.sh
 
 #!/bin/bash
 curl parrot.live
 # Добавьте эту строку, чтобы окно терминала не закрывалось сразу после выполнения команды
 read -p "Нажмите Enter для выхода..."
 
-chmod +x /home/User/parrot.sh
+chmod +x /home/user/parrot.sh
 
-mkdir -p /home/User/.config/autostart
+mkdir -p /home/user/.config/autostart
 
-nano /home/User/.config/autostart/parrot.desktop
+nano /home/user/.config/autostart/parrot.desktop
 
 [Desktop Entry]
 Type=Application
-Exec=mate-terminal -e "/home/User/parrot.sh"
+Exec=mate-terminal -e "/home/user/parrot.sh"
 Name=Parrot Live
 Comment=Запуск parrot.live при старте системы
 
-mate-terminal -e "/home/User/parrot.sh"
+mate-terminal -e "/home/user/parrot.sh"
