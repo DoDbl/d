@@ -1,0 +1,136 @@
+1. маршрут по умолчанию
+2. net_admin, role, password
+3. hostname, domain, dns
+4. ip pool A, nat
+5. dhcp
+6. интейрфейсы
+7. порты
+8. нат
+9. туннель
+
+
+
+##hq-rtr
+ip route 0.0.0.0/0 172.16.4.1
+username net_admin
+role admin
+password P@$$word
+exit
+hostname hq-rtr 
+ip domain-name au-team.irpo
+ip name-server 192.168.1.10
+ip pool A 192.168.2.4-192.168.2.10
+ip nat pool nat 192.168.1.1-192.168.3.250
+int isp
+ip address 172.16.4.2/28
+ip nat outside 
+exit
+dhcp-server 100
+static ip 192.168.2.3
+client-id mac BC24.1196.CC28
+mask 28
+gateway 192.168.2.1
+domain-name au-team.irpo
+dns 192.168.1.10
+exit
+pool A 10
+mask 28
+gateway 192.168.2.1
+domain-name au-team.irpo
+dns 192.168.1.10
+end
+conf t
+int srv
+ip address 192.168.1.1/26
+ip nat inside 
+int cli
+ip address 192.168.2.1/28
+ip nat inside 
+dhcp-server 100
+int management
+ip nat inside 
+ip address 192.168.3.1/29
+exit
+ip nat source dynamic inside-to-outside pool nat overload i isp
+port ge1
+service-instance ge1/isp
+encapsulation untagged 
+c i i isp
+port ge0
+service-instance ge0/srv
+encapsulation dot1q 100 exact 
+rewrite pop 1
+c i i srv
+exit
+service-instance ge0/cli
+encapsulation dot1q 200 exact 
+rewrite pop 1
+c i i cli
+exit
+service-instance ge0/management
+encapsulation dot1q 999 exact 
+rewrite pop 1
+c i i management 
+exit
+exit
+write
+int tunnel.0
+ip address 192.168.6.1/30
+ip mtu 1400
+ip tunnel 172.16.4.2 172.16.5.2 mode gre
+ip ospf authentication
+ip ospf authentication-key P@ssw0rd
+router ospf 1
+network 192.168.1.0/26 area 0
+network 192.168.2.0/28 area 0
+network 192.168.3.0/29 area 0
+network 192.168.6.0/30 area 0
+passive-interface default                
+no passive-interface tunnel.0 
+exit
+write
+
+
+br-rtr
+ip route 0.0.0.0/0 172.16.5.1
+username net_admin
+role admin
+password P@$$word
+exit
+hostname br-rtr 
+ip domain-name au-team.irpo
+ip name-server 192.168.1.10
+ip nat pool nat 192.168.4.1-192.168.4.250
+int isp
+ip address 172.16.5.2/28
+ip nat outside 
+int br
+ip address 192.168.4.1/27
+ip nat inside 
+exit
+ip nat source dynamic inside-to-outside pool nat overload i isp
+port ge0
+service-instance ge0/isp
+encapsulation untagged 
+c i i isp
+port ge1
+service-instance ge1/br
+encapsulation untagged 
+c i i br
+exit
+exit
+write
+int tunnel.0
+ip address 192.168.6.2/30
+ip mtu 1400
+ip tunnel 172.16.5.2 172.16.4.2 mode gre
+ip ospf authentication
+ip ospf authentication-key P@ssw0rd
+router ospf 1
+network 192.168.4.0/27 area 0
+network 192.168.6.0/30 area 0
+passive-interface default                
+no passive-interface tunnel.0 
+exit
+write
+
