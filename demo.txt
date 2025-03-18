@@ -1,5 +1,5 @@
 https://disk.yandex.ru/d/S6zbMtFyLmvT-A
-
+https://disk.yandex.ru/d/ol8ER9X7MOTJ_Q
 nano /home/user/parrot.sh
 
 #!/bin/bash
