@@ -1,4 +1,5 @@
-https://disk.yandex.ru/d/S6zbMtFyLmvT-A
+яндекс - https://disk.yandex.ru/d/S6zbMtFyLmvT-A
+яндекс - apt-get install yandex-browser-stable -y
 https://disk.yandex.ru/d/ol8ER9X7MOTJ_Q
 nano /home/user/parrot.sh
 
