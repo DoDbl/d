@@ -1,25 +1,10 @@
 -------------- 1 Настройка доменного контроллера Samba
 BR-SRV
-vim /etc/resolv.conf
-	nameserver 8.8.8.8
-apt-get update
 apt-get install task-samba-dc -y
-vim /etc/resolv.conf
-	nameserver 192.168.1.10
-
 rm -rf /etc/samba/smb.conf
-hostname -f
-//hostnamectl set-hostname br-srv.au-team.irpo; exec bash
-
 vim /etc/hosts
 192.168.4.10	br-srv.au-team.irpo
 
-HQ-SRV
-vim /etc/dnsmasq.conf
-server=/au-team.irpo/192.168.4.10
-systemctl restart dnsmasq
-
-BR-SRV
 samba-tool domain provision
 	AU-TEAM.IRPO
 	AU-TEAM
@@ -30,15 +15,13 @@ samba-tool domain provision
 mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
 systemctl enable samba
 
-export EDITOR=vim
-сrontab -e
-
+#  export EDITOR=vim
+#  сrontab -e
+◘
 @reboot /bin/systemctl restart network
 @reboot /bin/systemctl restart samba
-
-reboot
-
-samba-tool domain info 127.0.0.1
+◘
+#   samba-tool domain info 127.0.0.1
 
 samba-tool user add user1.hq P@ssw0rd
 samba-tool user add user2.hq P@ssw0rd
@@ -63,7 +46,7 @@ P@ssw0rd
 
 BR-SRV
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
-apt-get update
+
 apt-get install sudo-samba-schema -y
 sudo-schema-apply
 
@@ -81,7 +64,7 @@ sudoUser	: %hq
 
 HQ-CLI
 su -
-apt-get update
+
 apt-get install admc -y
 kinit administrator
 P@ssw0rd
@@ -94,7 +77,7 @@ admc
 /bin/grep
 /usr/bin/id
 
-apt-get update
+
 apt-get install sudo libsss_sudo
 
 control sudo public
@@ -150,7 +133,7 @@ cat /proc/mdstat
 mdadm --detail -scan --verbose > /etc/mdadm.conf
 fdisk /dev/md0
 n
-Enter x3
+Enter x4
 w
 
 mkfs.ext4 /dev/md0p1
@@ -161,7 +144,7 @@ vim /etc/fstab
 mkdir /raid5
 mount -a
 
-apt-get update
+
 apt-get install nfs-server
 
 mkdir /raid5/nfs
@@ -179,7 +162,7 @@ systemctl restart nfs
 
 
 HQ-CLI
-apt-get update
+
 apt-get install nfs-clients
 
 mkdir -p /mnt/nfs
@@ -236,7 +219,7 @@ systemctl enable --now chronyd
 
 BR-SRV
 apt-repo rm rpm http://altrepo.ru/local-p10
-apt-get update
+
 apt-get install ansible
 vim /etc/ansible/hosts
 	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
@@ -250,7 +233,7 @@ vim /etc/ansible/ansible.cfg
 
 
 HQ-RTR
-apt-get update
+
 apt-get install ssh-server -y
 nano /etc/ssh/sshd_config
 	Port 22
@@ -319,7 +302,7 @@ ansible all -m ping
 -------------- 5 Развертывание Docker
 
 BR-SRV
-apt-get update
+
 apt-get install docker-engine docker-compose
 systemctl enable --now docker
 systemctl status docker
@@ -400,7 +383,7 @@ ssh -p 2024 sshuser@192.168.4.1
 -------------- 7 Запустите сервис moodle
 
 HQ-SRV
-apt-get update
+
 apt-get install apache2 php8.2 
 apache2-mod_php8.2
 mariadb-server 
@@ -519,7 +502,7 @@ wiki.au-team.irpo
 -------------- 9 Яндекс Браузер
 
 HQ-CLI
-apt-get update
+
 apt-get install yandex-browser-stable
 
 
