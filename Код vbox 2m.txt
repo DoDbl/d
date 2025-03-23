@@ -202,9 +202,9 @@ MS Name/IP address        Stratum  Poll  Reach  LastRx  Last  sample
 chronyc tracking | grep Stratum ------ Stratum: 5
 
 •••EcoRouter
-ntp server 172.16.4.1
+ntp server 172.16.5.1
 ntp timezone utc+8
-show ntp status
+do show ntp status
 
 •••ALT
 apt-get install chrony
