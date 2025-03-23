@@ -5,18 +5,18 @@ vim /etc/resolv.conf
 apt-get update
 apt-get install task-samba-dc -y
 vim /etc/resolv.conf
-	nameserver 192.168.1.2
+	nameserver 192.168.1.10
 
 rm -rf /etc/samba/smb.conf
 hostname -f
 //hostnamectl set-hostname br-srv.au-team.irpo; exec bash
 
 vim /etc/hosts
-192.168.4.2	br-srv.au-team.irpo
+192.168.4.10	br-srv.au-team.irpo
 
 HQ-SRV
 vim /etc/dnsmasq.conf
-server=/au-team.irpo/192.168.4.2
+server=/au-team.irpo/192.168.4.10
 systemctl restart dnsmasq
 
 BR-SRV
@@ -25,7 +25,7 @@ samba-tool domain provision
 	AU-TEAM
 	dc
 	SAMBA_INTERNAL
-	192.168.1.2 
+	192.168.1.10 
 
 mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
 systemctl enable samba
@@ -185,7 +185,7 @@ apt-get install nfs-clients
 mkdir -p /mnt/nfs
 vim /etc/fstab
 
-192.168.1.2:/raid5/nfs	/mnt/nfs	nfs	intr,soft,_netdev,x-systemd.automount 0 0
+192.168.1.10:/raid5/nfs	/mnt/nfs	nfs	intr,soft,_netdev,x-systemd.automount 0 0
 
 mount -a
 mount -v
@@ -239,7 +239,7 @@ apt-repo rm rpm http://altrepo.ru/local-p10
 apt-get update
 apt-get install ansible
 vim /etc/ansible/hosts
-	hq-srv ansible_host=sshuser@192.168.1.2 ansible_port=2024
+	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
 	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=2024
 	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
 	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
@@ -310,8 +310,8 @@ apt-get install python-module-jinja2
 BR-SRV
 ssh-keygen -t rsa
 ssh-copy-id -p 22 net_admin@192.168.4.1
-ssh-copy-id -p 2024 sshuser@192.168.2.11
-ssh-copy-id -p 2024 sshuser@192.168.1.2
+ssh-copy-id -p 2024 sshuser@192.168.2.3
+ssh-copy-id -p 2024 sshuser@192.168.1.10
 ssh-copy-id -p 22 net_admin@192.168.1.1
 
 ansible all -m ping
@@ -356,7 +356,7 @@ volumes:
 docker compose -f /root/wiki.yml up -d
 
 HQ-CLI
-192.168.4.2:8080
+192.168.4.10:8080
 Хост базы данных:
 mariadb
 
@@ -382,16 +382,16 @@ ls /root/mediawiki/
 vim /root/wiki.yml
 docker compose -f wiki.yml up -d
 CLI
-192.168.4.2:8080
+192.168.4.10:8080
 
 -------------- 6 Статическая трансляция портов
 
 BR-RTR
-ip nat source static tcp 192.168.0.1 80 192.168.0.30 8080
-ip nat source static tcp 192.168.0.1 2024 192.168.0.30 2024
+ip nat source static tcp 192.168.4.1 80 192.168.4.10 8080
+ip nat source static tcp 192.168.4.1 2024 192.168.4.10 2024
 
 HQ-RTR
-ip nat source static tcp 192.168.100.1 2024 192.168.100.62 2024
+ip nat source static tcp 192.168.1.1 2024 192.168.1.10 2024
 
 HQ-CLI
 ssh -p 2024 sshuser@192.168.4.1
@@ -455,7 +455,7 @@ rm index.html
 systemctl restart httpd2
 
 HQ-CLI
-http://192.168.1.2/install.php
+http://192.168.1.10/install.php
 
 Название базы данных:		moodledb
 Пользователь базы данных:	moodle
@@ -488,7 +488,7 @@ server {
   listen 80;
   server_name moodle.au-team.irpo;
   location / {
-    proxy_pass http://192.168.1.2:80;
+    proxy_pass http://192.168.1.10:80;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $remote_addr;
@@ -499,7 +499,7 @@ server {
   listen 80;
   server_name wiki.au-team.irpo;
   location / {
-    proxy_pass http://192.168.4.2:8080;
+    proxy_pass http://192.168.4.10:8080;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $remote_addr;
