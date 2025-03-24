@@ -15,6 +15,11 @@ samba-tool domain provision
 mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
 systemctl enable samba
 
+HQ-SRV
+vim /etc/dnsmasq.conf
+server=/au-team.irpo/192.168.4.2
+systemctl restart dnsmasq
+
 #  export EDITOR=vim
 #  сrontab -e
 ◘
