@@ -17,7 +17,7 @@ systemctl enable samba
 
 HQ-SRV
 vim /etc/dnsmasq.conf
-server=/au-team.irpo/192.168.4.2
+server=/au-team.irpo/192.168.4.10
 systemctl restart dnsmasq
 
 #  export EDITOR=vim
