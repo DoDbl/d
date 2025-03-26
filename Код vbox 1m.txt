@@ -349,13 +349,13 @@ cname=wiki.au-team.irpo,hq-rtr.au-team.irpo
 
 address=/br-rtr.au-team.irpo/192.168.4.1
 
-address=/hq-srv.au-team.irpo/192.168.1.2
-ptr-record=2.1.168.192.in-addr.arpa,hq-srv.au-team.irpo
+address=/hq-srv.au-team.irpo/192.168.1.10
+ptr-record=10.1.168.192.in-addr.arpa,hq-srv.au-team.irpo
 
-address=/hq-cli.au-team.irpo/192.168.2.11 
-ptr-record=11.2.168.192.in-addr.arpa,hq-cli.au-team.irpo
+address=/hq-cli.au-team.irpo/192.168.2.3
+ptr-record=3.2.168.192.in-addr.arpa,hq-cli.au-team.irpo
 
-address=/br-srv.au-team.irpo/192.168.4.2
+address=/br-srv.au-team.irpo/192.168.4.10
 
 
 vim /etc/hosts
