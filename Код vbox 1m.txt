@@ -327,6 +327,9 @@ ping 192.168.2.1
 -------------- 9 Настройка DNS
 
 HQ-SRV
+systemctl disable –now bind
+apt-get remove –purge bind bind-utils
+rm -rf /etc/bind /etc/named /var/cache/bind /var/named
 systemctl disable --now bind
 vim /etc/resolv.conf
 	nameserver 8.8.8.8
