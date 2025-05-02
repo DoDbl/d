@@ -22,7 +22,7 @@ ip name-server 192.168.1.10
 ip pool A 192.168.2.4-192.168.2.10
 ip nat pool nat 192.168.1.1-192.168.3.250
 int isp
-ip address 172.16.4.2/28
+ip address 172.16.40.2/28
 ip nat outside 
 exit
 dhcp-server 100
@@ -41,7 +41,7 @@ dns 192.168.1.10
 end
 conf t
 int srv
-ip address 192.168.1.1/26
+ip address 192.168.1.1/27
 ip nat inside 
 int cli
 ip address 192.168.2.1/28
@@ -58,12 +58,12 @@ encapsulation untagged
 c i i isp
 port ge0
 service-instance ge0/srv
-encapsulation dot1q 100 exact 
+encapsulation dot1q 10 exact 
 rewrite pop 1
 c i i srv
 exit
 service-instance ge0/cli
-encapsulation dot1q 200 exact 
+encapsulation dot1q 20 exact 
 rewrite pop 1
 c i i cli
 exit
@@ -77,11 +77,11 @@ write
 int tunnel.0
 ip address 192.168.6.1/30
 ip mtu 1400
-ip tunnel 172.16.4.2 172.16.5.2 mode gre
+ip tunnel 172.16.40.2 172.16.50.2 mode gre
 ip ospf authentication
 ip ospf authentication-key P@ssw0rd
 router ospf 1
-network 192.168.1.0/26 area 0
+network 192.168.1.0/27 area 0
 network 192.168.2.0/28 area 0
 network 192.168.3.0/29 area 0
 network 192.168.6.0/30 area 0
@@ -92,7 +92,7 @@ write
 
 
 br-rtr
-ip route 0.0.0.0/0 172.16.5.1
+ip route 0.0.0.0/0 172.16.50.1
 username net_admin
 role admin
 password P@$$word
@@ -102,10 +102,10 @@ ip domain-name au-team.irpo
 ip name-server 192.168.1.10
 ip nat pool nat 192.168.4.1-192.168.4.250
 int isp
-ip address 172.16.5.2/28
+ip address 172.16.50.2/28
 ip nat outside 
 int br
-ip address 192.168.4.1/27
+ip address 192.168.4.1/28
 ip nat inside 
 exit
 ip nat source dynamic inside-to-outside pool nat overload i isp
@@ -123,11 +123,11 @@ write
 int tunnel.0
 ip address 192.168.6.2/30
 ip mtu 1400
-ip tunnel 172.16.5.2 172.16.4.2 mode gre
+ip tunnel 172.16.50.2 172.16.40.2 mode gre
 ip ospf authentication
 ip ospf authentication-key P@ssw0rd
 router ospf 1
-network 192.168.4.0/27 area 0
+network 192.168.4.0/28 area 0
 network 192.168.6.0/30 area 0
 passive-interface default                
 no passive-interface tunnel.0 
