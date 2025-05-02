@@ -17,3 +17,26 @@ vim /etc/net/ifaces/ens18/ipv4route
 
 vim /etc/resolv.conf
       nameserver 8.8.8.8
+
+
+vim /etc/sysconfig/network 
+      HOSTNAME=hq-srv.au-team.irpo
+
+vim /etc/sudoers
+            ## Uncomment to allow members of group wheel to execute any command
+                   WHEEL_USERS ALL=(ALL:ALL) ALL
+
+            ## Same thing without a password
+                   WHEEL_USERS ALL=(ALL:ALL) NOPASSWD: ALL
+
+vim /etc/openssh/sshd_config
+      Port 3015
+      Allowusers sshuser
+      MaxAuthTries 2
+      Banner /etc/openssh/baner
+
+vim /etc/openssh/baner
+      Authorized access only
+
+
+
