@@ -38,5 +38,45 @@ vim /etc/openssh/sshd_config
 vim /etc/openssh/baner
       Authorized access only
 
+HQ-SRV
+systemctl disable –now bind
+apt-get remove –purge bind bind-utils
+rm -rf /etc/bind /etc/named /var/cache/bind /var/named
+systemctl disable --now bind
+vim /etc/resolv.conf
+	nameserver 8.8.8.8
+apt-get update
+apt-get install dnsmasq
+systemctl enable --now dnsmasq
+systemctl status dnsmasq
+
+vim /etc/dnsmasq.conf
+--------------------------------------------------
+no-resolv 
+domain=au-team.irpo
+server=8.8.8.8 
+interface=* 
+
+address=/hq-rtr.au-team.irpo/192.168.1.1
+ptr-record=1.1.168.192.in-addr.arpa,hq-rtr.au-team.irpo
+
+address=/hq-srv.au-team.irpo/192.168.1.10
+ptr-record=10.1.168.192.in-addr.arpa,hq-srv.au-team.irpo
+
+address=/hq-cli.au-team.irpo/192.168.2.3
+ptr-record=3.2.168.192.in-addr.arpa,hq-cli.au-team.irpo
+
+address=/br-srv.au-team.irpo/192.168.4.10
+address=/br-rtr.au-team.irpo/192.168.4.1
+address=/moodle.au-team.irpo/172.16.40.1
+address=/wiki.au-team.irpo/172.16.50.1
+-------------------------------------------------
+
+vim /etc/hosts
+192.168.1.1	hq-rtr.au-team.irpo
+
+systemctl restart dnsmasq
 
 
+vim /etc/bind/options
+vim /etc/bind/local.conf
