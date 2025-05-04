@@ -1,3 +1,21 @@
+HQ-SRV 
+apt-get install nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
+
+BR-SRV 
+apt-get install task-samba-dc sudo-samba-schema systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose -y
+
+HQ-CLI 
+apt-get install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable -y
+
+HQ-RTR 
+apt install chrony -y
+
+BR-RTR 
+apt install systemd-timesyncd
+
+ISP apt install nginx -y
+
+
 -------------- 1 Настройка доменного контроллера Samba
 BR-SRV
 apt-get install task-samba-dc -y
