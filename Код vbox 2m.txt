@@ -31,6 +31,7 @@ samba-tool domain provision
 	dc
 	SAMBA_INTERNAL
 	192.168.1.10 
+	P@ssw0rd
 
 mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
 systemctl enable samba
