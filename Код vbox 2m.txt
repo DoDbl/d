@@ -9,13 +9,13 @@ HQ-CLI
 apt-get update && install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable -y
 
 HQ-RTR 
-apt update && install chrony -y
+apt-get update && install chrony -y
 
 BR-RTR 
-apt update && install systemd-timesyncd
+apt-get update && install systemd-timesyncd
 
 ISP 
-apt update && install nginx -y
+apt-get update && install nginx -y
 
 
 -------------- 1 Настройка доменного контроллера Samba
