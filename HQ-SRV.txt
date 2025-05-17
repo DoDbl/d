@@ -2,12 +2,9 @@ vim /etc/hostname
 vim /etc/net/ifaces/ens18/options
       BOOTPROTO=static
       TYPE=eth
-      CONFIG_WIRELESS=no
-      #SYSTEMD_BOOTPROTO=dhcp4
       CONFIG_IPV4=yes
       DISABLED=no
-      NM_CONTROLLED=no
-      SYSTEMD_CONTROLLED=no
+
 
 vim /etc/net/ifaces/ens18/ipv4address
       192.168.1.10/27
