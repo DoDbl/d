@@ -1,18 +1,18 @@
 HQ-SRV 
-apt-get install nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
+apt-get update && apt-get install nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
-apt-get update && install task-samba-dc sudo-samba-schema systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose -y
+apt-get update && apt-get install task-samba-dc sudo-samba-schema systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose -y
 
 HQ-CLI 
-apt-get update && install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable -y
+apt-get update && apt-get install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable -y
 
 HQ-RTR 
-apt-get update && install chrony -y
+apt-get update && apt-get install chrony -y
 
 BR-RTR 
-apt-get update && install systemd-timesyncd
+apt-get update && apt-get install systemd-timesyncd
 
 ISP 
 apt-get update && install nginx -y
