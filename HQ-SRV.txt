@@ -19,6 +19,10 @@ vim /etc/resolv.conf
 vim /etc/sysconfig/network 
       HOSTNAME=hq-srv.au-team.irpo
 
+useradd sshuser -u 3015 -G wheel
+passwd sshuser
+	P@ssw0rd
+
 vim /etc/sudoers
             ## Uncomment to allow members of group wheel to execute any command
                    WHEEL_USERS ALL=(ALL:ALL) ALL
