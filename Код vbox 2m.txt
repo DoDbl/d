@@ -1,5 +1,5 @@
 ISP 
-apt-get update && install nginx -y
+apt-get update && apt-get install nginx -y
 
 HQ-RTR 
 apt-get update && apt-get install chrony -y
