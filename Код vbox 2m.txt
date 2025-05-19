@@ -217,7 +217,7 @@ systemctl status chrony
 timedatectl
 nano /etc/chrony/chrony.conf
 local stratum 5
-allow 192.168.1.0/26
+allow 192.168.1.0/27 #(26)
 allow 192.168.2.0/28
 allow 172.16.5.0/28
 allow 192.168.4.0/27
@@ -248,7 +248,7 @@ BR-RTR
 //apt update
 //apt install systemd-timesyncd
 nano /etc/systemd/timesyncd.conf
-NTP=172.16.4.2
+NTP=172.16.40.2
 systemctl enable --now systemd-timesyncd
 
 HQ-SRV
@@ -268,7 +268,7 @@ systemctl status chronyd
 apt-get update
 apt-get install systemd-timesyncd
 vim /etc/systemd/timesyncd.conf
-NTP=172.16.4.2
+NTP=172.16.40.2
 systemctl enable --now systemd-timesyncd
 timedatectl
 
@@ -286,14 +286,14 @@ ssh-copy-id -p2024 sshuser@192.168.2.3
 ssh-copy-id -p2024 sshuser@192.168.4.1
 
 vim /etc/ansible/host
-192.168.1.10 ansible_port=2024 ansible_user=sshuser
-192.168.2.3 ansible_port=2024 ansible_user=sshuser
-192.168.4.1 ansible_port=2024 ansible_user=sshuser
-192.168.1.1 ansible_port=2024 ansible_user=sshuser
+192.168.1.10 ansible_port=3015 ansible_user=sshuser #ansible_port=2024
+192.168.2.3 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
+192.168.4.1 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
+192.168.1.1 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
 
 #vim /etc/ansible/hosts
-#	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
-#	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=2024
+#	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=3015 #ansible_port=2024
+#	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=3015  #ansible_port=2024
 #	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
 #	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
 
@@ -310,7 +310,7 @@ ansible all -i /etc/ansible/host -m ping
 -------------- 5 Развертывание Docker
 HQ-CLI
 su -
-ssh sshuser@192.168.4.10 -p 2024
+ssh sshuser@192.168.4.10 -p 3015 #2024
 BR-SRV
 
 apt-get install docker-engine docker-compose
@@ -381,8 +381,8 @@ wiki
 WikiP@ssw0rd
 
 
-scp -P 2024 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
-
+scp -P 3015 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
+       #2024
 nano /home/sshuser/wiki/wiki.yml
 **Убрать комментарий  # - ./LocalSettings.php:/var/www/html/LocalSettings.php
 
@@ -396,7 +396,7 @@ CLI
 BR-RTR
 
 iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
-iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
+#iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
 iptables-save > /root/rules
 
 HQ-RTR
