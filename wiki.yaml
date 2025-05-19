@@ -8,8 +8,8 @@ services:
     links:
       - database
     volumes:
-      - images:/var/www/html/images
-      # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./images:/var/www/html/images
+      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
   # This key also defines the name of the database host used during setup instead of the default "localhost"
   database:
     container_name: mariadb 
