@@ -396,12 +396,12 @@ CLI
 BR-RTR
 
 iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
+iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 3015 -j DNAT --to-destination 192.168.4.10:3015
 iptables-save > /root/rules
 
 HQ-RTR
 iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 3015 -j DNAT --to-destination 192.168.1.10:3015
-iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 3015 -j DNAT --to-destination 192.168.4.10:3015
+#iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 3015 -j DNAT --to-destination 192.168.4.10:3015
 iptables-save > /root/rules
 
 
