@@ -190,7 +190,7 @@ chown 99:99 /raid0/nfs
 chmod 777 /raid0/nfs
 
 vim /etc/exports
-/raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
+/raid0/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
 
 exportfs -a
 exportfs -v
