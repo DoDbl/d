@@ -45,18 +45,18 @@ echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
 systemctl restart network
 kinit administrator@AU-TEAM.IRPO
 
-HQ-SRV
-vim /etc/dnsmasq.conf
-server=/au-team.irpo/192.168.4.10
-systemctl restart dnsmasq
+#HQ-SRV
+#vim /etc/dnsmasq.conf
+#server=/au-team.irpo/192.168.4.10
+#systemctl restart dnsmasq
 
 BR-SRV
-#  export EDITOR=vim
-#  сrontab -e
-◘
-@reboot /bin/systemctl restart network
-@reboot /bin/systemctl restart samba
-◘
+##  export EDITOR=vim
+##  сrontab -e
+#◘
+#@reboot /bin/systemctl restart network
+#@reboot /bin/systemctl restart samba
+#◘
 #   samba-tool domain info 127.0.0.1
 
 samba-tool user add user1.hq P@ssw0rd
