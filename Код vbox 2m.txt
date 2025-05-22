@@ -43,6 +43,7 @@ smbclient -L 127.0.0.1 -U Administrator
 echo "search au-team.irpo" > /etc/net/ifaces/ens19/resolv.conf
 echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
 systemctl restart network
+kinit administrator@AU-TEAM.IRPO
 
 HQ-SRV
 vim /etc/dnsmasq.conf
