@@ -15,7 +15,7 @@ apt-get update && apt-get install systemd-timesyncd -y
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
-apt-get update && apt-get install task-samba-dc sudo-samba-schema systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose -y
+apt-get update && apt-get install bind bind-utils task-samba-dc sudo-samba-schema systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose -y
 
 
 
