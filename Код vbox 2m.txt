@@ -8,7 +8,7 @@ HQ-SRV
 apt-get update && apt-get install terminus-fonts-console nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
 
 HQ-CLI 
-apt-get update && apt-get install terminus-fonts-console admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role -y
+apt-get update && apt-get install terminus-fonts-console admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
 
 BR-RTR 
 apt-get update && apt-get install terminus-fonts-console systemd-timesyncd -y
