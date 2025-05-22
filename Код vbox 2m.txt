@@ -22,7 +22,10 @@ apt-get update && apt-get install terminus-fonts-console bind bind-utils task-sa
 -------------- 1 Настройка доменного контроллера Samba
 BR-SRV
 apt-get install task-samba-dc -y
-rm -rf /etc/samba/smb.conf
+rm -f /etc/samba/smb.con
+rm -rf /var/lib/samba
+rm -rf /var/cache/samba
+mkdir -p /var/lib/samba/sysvol
 vim /etc/hosts
 192.168.4.10	br-srv.au-team.irpo
 
@@ -73,7 +76,7 @@ P@ssw0rd
 
 
 BR-SRV
-apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
+#apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
 
 apt-get install sudo-samba-schema -y
 sudo-schema-apply
