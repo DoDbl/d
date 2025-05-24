@@ -2,12 +2,10 @@ ISP
 apt-get update && apt-get install nano terminus-fonts-console nginx -y
 
 HQ-RTR 
-apt-get update && apt-get install chrony nano terminus-fonts-console -y
+apt-get update && apt-get install docker-engine docker-compose-v2 chrony nano terminus-fonts-console -y
 
 HQ-SRV 
 apt-get update && apt-get install fdisk nano terminus-fonts-console nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
-
-#apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium}
 
 HQ-CLI 
 apt-get update && apt-get install nano terminus-fonts-console admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
@@ -83,7 +81,7 @@ P@ssw0rd
 
 
 BR-SRV
-#apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
+
 
 apt-get install sudo-samba-schema -y
 sudo-schema-apply
@@ -116,7 +114,6 @@ admc
 /usr/bin/id
 
 
-apt-get install sudo libsss_sudo
 
 control sudo public
 
@@ -221,10 +218,6 @@ ls /raid0/nfs
 --------------  3 Настройка chrony
 
 HQ-RTR
-apt update
-apt install chrony -y
-systemctl status chrony
-timedatectl
 nano /etc/chrony/chrony.conf
 local stratum 5
 allow 192.168.1.0/27 #(26)
@@ -233,50 +226,31 @@ allow 172.16.5.0/28
 allow 192.168.4.0/27
 #pool 2.debian
 #rtcsync
+
 systemctl enable --now chrony
 systemctl restart chrony
 timedatectl set-ntp 0
-timedatectl
 
 HQ-CLI
-systemctl disable --now chronyd
-systemctl status chronyd
-apt-get update
+
 apt-get install systemd-timesyncd -y
 vim /etc/systemd/timesyncd.conf
 NTP=192.168.1.1
 systemctl enable --now systemd-timesyncd
-timedatectl timesync-status
-Ctrl+Alt+F2
-startx
-continue
-reboot
+
 
 BR-RTR
-//apt purge ntp
-//apt purge chrony
-//apt update
-//apt install systemd-timesyncd
 nano /etc/systemd/timesyncd.conf
 NTP=172.16.40.2
 systemctl enable --now systemd-timesyncd
 
 HQ-SRV
-systemctl disable --now chronyd
-systemctl status chronyd
-apt-get update
-apt-get install systemd-timesyncd -y
 vim /etc/systemd/timesyncd.conf
 NTP=192.168.1.1
 systemctl enable --now systemd-timesyncd
 timedatectl timesync-status
 
 BR-SRV
-
-systemctl disable --now chronyd
-systemctl status chronyd
-apt-get update
-apt-get install systemd-timesyncd
 vim /etc/systemd/timesyncd.conf
 NTP=172.16.40.2
 systemctl enable --now systemd-timesyncd
@@ -426,21 +400,8 @@ HQ-SRV
 apt-get install apache2 php8.2 
 apache2-mod_php8.2
 mariadb-server 
-php8.2-opcache 
-php8.2-curl 
-php8.2-gd 
-php8.2-intl 
 php8.2-mysqli 
-php8.2-xml 
-php8.2-xmlrpc 
-php8.2-ldap 
-php8.2-zip 
-php8.2-soap 
-php8.2-mbstring 
-php8.2-json 
-php8.2-xmlreader 
-php8.2-fileinfo 
-php8.2-sodium
+
 
 systemctl enable -–now httpd2 mysqld
 
@@ -503,36 +464,25 @@ HQ-SRV
 mcedit /var/www/html/config.php
 $CFG->wwwroot	= ‘http://moodle.au-team.irpo’;
 
-ISP
-apt install nginx -y
-nano /etc/nginx/sites-available/proxy
-server {
-  listen 80;
-  server_name moodle.au-team.irpo;
-  location / {
-    proxy_pass http://192.168.1.10:80;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP  $remote_addr;
-    proxy_set_header X-Forwarded-For $remote_addr;
-   }
-}
+HQ-RTR
+apt-get install docker-engine docker-compose-v2
 
-server {
-  listen 80;
-  server_name wiki.au-team.irpo;
-  location / {
-    proxy_pass http://192.168.4.10:8080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP  $remote_addr;
-    proxy_set_header X-Forwarded-For $remote_addr;
-  }
-}
-
-rm -rf /etc/nginx/sites-available/default
-rm -rf /etc/nginx/sites-enabled/default
-ln -s /etc/nginx/sites-available/proxy /etc/nginx/sites-enabled
-ls -la /etc/nginx/sites-enabled
-systemctl restart nginx
+systemctl enable --now docker
+mkdir /home/sshuser/proxy
+nano /home/sshuser/proxy/proxy.yml
+-----------------------------
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+----------------------
 
 HQ-CLI
 moodle.au-team.irpo и 
