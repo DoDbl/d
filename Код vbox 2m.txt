@@ -28,8 +28,8 @@ rm -f /etc/samba/smb.conf
 rm -rf /var/lib/samba
 rm -rf /var/cache/samba
 mkdir -p /var/lib/samba/sysvol
-vim /etc/hosts
-192.168.4.10	br-srv.au-team.irpo
+№vim /etc/hosts
+№192.168.4.10	br-srv.au-team.irpo
 
 samba-tool domain provision
 	AU-TEAM.IRPO
