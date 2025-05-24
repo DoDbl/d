@@ -1,21 +1,21 @@
 ISP 
-apt-get update && apt-get install nginx -y
+apt-get update && apt-get install nano terminus-fonts-console nginx -y
 
 HQ-RTR 
-apt-get update && apt-get install chrony terminus-fonts-console -y
+apt-get update && apt-get install chrony nano terminus-fonts-console -y
 
 HQ-SRV 
-apt-get update && apt-get install terminus-fonts-console nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
+apt-get update && apt-get install nano terminus-fonts-console nfs-server systemd-timesyncd apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium} mariadb-server -y 
 
 HQ-CLI 
-apt-get update && apt-get install terminus-fonts-console admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
+apt-get update && apt-get install nano terminus-fonts-console admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
 
 BR-RTR 
-apt-get update && apt-get install terminus-fonts-console systemd-timesyncd -y
+apt-get update && apt-get install nano terminus-fonts-console systemd-timesyncd -y
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
-apt-get update && apt-get install -y terminus-fonts-console bind bind-utils task-samba-dc systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose  sudo-samba-schema 
+apt-get update && apt-get install -y nano terminus-fonts-console bind bind-utils task-samba-dc systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose  sudo-samba-schema 
 
 
 
