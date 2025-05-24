@@ -5,7 +5,7 @@ HQ-RTR
 apt-get update && apt-get install chrony nano terminus-fonts-console -y
 
 HQ-SRV 
-apt-get update && apt-get install nano terminus-fonts-console nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
+apt-get update && apt-get install fdisk nano terminus-fonts-console nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
 
 #apache2 apache2-mod_php8.2  php8.2-{opcache,curl,gd,intl,mysqli,xml,xmlrpc,ldap,zip,soap,mbstring,json,xmlreader,fileinfo,sodium}
 
