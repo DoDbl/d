@@ -463,8 +463,8 @@ HQ-RTR
 apt-get install docker-engine docker-compose-v2
 
 systemctl enable --now docker
-mkdir /home/sshuser/proxy
-nano /home/sshuser/proxy/proxy.yml
+mkdir 
+nano proxy.yml
 -----------------------------
 services:
   app:
@@ -478,6 +478,7 @@ services:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
 ----------------------
+docker compose -f proxy.yml up -d
 
 HQ-CLI
 moodle.au-team.irpo и 
