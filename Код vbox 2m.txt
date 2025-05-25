@@ -439,6 +439,10 @@ http://192.168.1.10/install.php
 Пользователь базы данных:	moodle
 Пароль:				P@ssw0rd
 
+vim /var/www/html/config.php
+-----$CFG->dbtype	= 'mariadb';
+
+
 далее
 Логин:			admin
 Новый пароль:		P@ssw0rd
