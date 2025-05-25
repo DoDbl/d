@@ -22,12 +22,12 @@ apt-get update && apt-get install -y nano terminus-fonts-console bind bind-utils
 -------------- 1 Настройка доменного контроллера Samba
 BR-SRV
 apt-get install task-samba-dc -y
-rm -f /etc/samba/smb.conf
-rm -rf /var/lib/samba
-rm -rf /var/cache/samba
+#rm -f /etc/samba/smb.conf
+#rm -rf /var/lib/samba
+#rm -rf /var/cache/samba
 mkdir -p /var/lib/samba/sysvol
-vim /etc/hosts
-192.168.4.10	br-srv.au-team.irpo
+#vim /etc/hosts
+#192.168.4.10	br-srv.au-team.irpo
 
 samba-tool domain provision
 	AU-TEAM.IRPO
@@ -39,9 +39,9 @@ samba-tool domain provision
 
 mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
 systemctl enable --now samba
-smbclient -L 127.0.0.1 -U Administrator
-echo "search au-team.irpo" > /etc/net/ifaces/ens19/resolv.conf
-echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
+#smbclient -L 127.0.0.1 -U Administrator
+#echo "search au-team.irpo" > /etc/net/ifaces/ens19/resolv.conf
+#echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
 systemctl restart network
 kinit administrator@AU-TEAM.IRPO
 
