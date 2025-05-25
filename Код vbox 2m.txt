@@ -46,13 +46,13 @@ kinit administrator@AU-TEAM.IRPO
 
 
 BR-SRV
-##  export EDITOR=vim
-##  сrontab -e
-#◘
+#  export EDITOR=vim
+#  сrontab -e
+◘
 #@reboot /bin/systemctl restart network
 #@reboot /bin/systemctl restart samba
-#◘
-#   samba-tool domain info 127.0.0.1
+◘
+
 
 samba-tool user add user1.hq P@ssw0rd
 samba-tool user add user2.hq P@ssw0rd
