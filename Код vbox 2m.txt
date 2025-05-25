@@ -23,7 +23,7 @@ apt-get update && apt-get install -y nano terminus-fonts-console bind bind-utils
 BR-SRV
 apt-get install task-samba-dc -y
 
-#rm -f /etc/samba/smb.conf && rm -rf /var/lib/samba && rm -rf /var/cache/samba
+rm -f /etc/samba/smb.conf && rm -rf /var/lib/samba && rm -rf /var/cache/samba
 
 mkdir -p /var/lib/samba/sysvol
 
@@ -44,10 +44,6 @@ echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
 systemctl restart network
 kinit administrator@AU-TEAM.IRPO
 
-#HQ-SRV
-#vim /etc/dnsmasq.conf
-#server=/au-team.irpo/192.168.4.10
-#systemctl restart dnsmasq
 
 BR-SRV
 ##  export EDITOR=vim
@@ -204,7 +200,7 @@ apt-get install nfs-clients
 mkdir -p /mnt/nfs
 vim /etc/fstab
 
-192.168.1.10:/raid0/nfs	/mnt/nfs	nfs	intr,soft,_netdev,x-systemd.automount 0 0
+192.168.1.10:/raid0/nfs	/mnt/nfs	nfs	defaults	 0	 0
 
 mount -a
 mount -v
