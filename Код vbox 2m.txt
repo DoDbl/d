@@ -159,7 +159,7 @@ HQ-SRV
 Ctrl+D
 
 lsblk
-mdadm --create /dev/md0 --level=0 --raid-devices=3 /dev/sd[b-d]
+mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sd[b-d]
 cat /proc/mdstat
 
 mdadm --detail -scan --verbose > /etc/mdadm.conf
@@ -171,20 +171,20 @@ w
 mkfs.ext4 /dev/md0p1
 
 vim /etc/fstab
-/dev/md0p1	/raid0	ext4	defaults	0	0
+/dev/md0p1	/raid5	ext4	defaults	0	0
 
-mkdir /raid0
+mkdir /raid5
 mount -a
 
 
 apt-get install nfs-server
 
 mkdir /raid0/nfs
-chown 99:99 /raid0/nfs
-chmod 777 /raid0/nfs
+chown 99:99 /raid5/nfs
+chmod 777 /raid5/nfs
 
 vim /etc/exports
-/raid0/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
+/raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
 
 exportfs -a
 exportfs -v
@@ -200,7 +200,7 @@ apt-get install nfs-clients
 mkdir -p /mnt/nfs
 vim /etc/fstab
 
-192.168.1.10:/raid0/nfs	/mnt/nfs	nfs	defaults	 0	 0
+192.168.1.10:/raid5/nfs	/mnt/nfs	nfs	defaults	 0	 0
 
 mount -a
 mount -v
@@ -215,10 +215,7 @@ ls /raid0/nfs
 HQ-RTR
 nano /etc/chrony/chrony.conf
 local stratum 5
-allow 192.168.1.0/27 #(26)
-allow 192.168.2.0/28
-allow 172.16.5.0/28
-allow 192.168.4.0/27
+allow 0/0
 #pool 2.debian
 #rtcsync
 
@@ -236,7 +233,7 @@ systemctl enable --now systemd-timesyncd
 
 BR-RTR
 nano /etc/systemd/timesyncd.conf
-NTP=172.16.40.2
+NTP=172.16.4.2
 systemctl enable --now systemd-timesyncd
 
 HQ-SRV
@@ -247,7 +244,7 @@ timedatectl timesync-status
 
 BR-SRV
 vim /etc/systemd/timesyncd.conf
-NTP=172.16.40.2
+NTP=172.16.4.2
 systemctl enable --now systemd-timesyncd
 timedatectl
 
@@ -264,32 +261,20 @@ ssh-copy-id -p2024 sshuser@192.168.1.1 (-p22)
 ssh-copy-id -p2024 sshuser@192.168.2.3
 ssh-copy-id -p2024 sshuser@192.168.4.1
 
-vim /etc/ansible/host
-192.168.1.10 ansible_port=3015 ansible_user=sshuser #ansible_port=2024
-192.168.2.3 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
-192.168.4.1 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
-192.168.1.1 ansible_port=3015 ansible_user=sshuser  #ansible_port=2024
 
-#vim /etc/ansible/hosts
-#	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=3015 #ansible_port=2024
-#	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=3015  #ansible_port=2024
-#	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
-#	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
+
+vim /etc/ansible/hosts
+	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
+	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=2024 
+	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
+	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
 
 ansible all -i /etc/ansible/host -m ping
-
-
-#vim /etc/ansible/ansible.cfg
-#	interpreter_python=auto_silent
-#	ansible_python_interpreter=/usr/bin/python3
-
-#apt-get install python-module-jinja2 
-
 
 -------------- 5 Развертывание Docker
 HQ-CLI
 su -
-ssh sshuser@192.168.4.10 -p 3015 #2024
+ssh sshuser@192.168.4.10 -p 2024
 BR-SRV
 
 apt-get install docker-engine docker-compose
@@ -360,8 +345,8 @@ wiki
 WikiP@ssw0rd
 
 
-scp -P 3015 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
-       #2024
+scp -P 2024 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
+       
 nano /home/sshuser/wiki/wiki.yml
 **Убрать комментарий  # - ./LocalSettings.php:/var/www/html/LocalSettings.php
 
@@ -375,12 +360,12 @@ CLI
 BR-RTR
 
 iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
-iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 3015 -j DNAT --to-destination 192.168.4.10:3015
+iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
 iptables-save > /root/rules
 
 HQ-RTR
-iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 3015 -j DNAT --to-destination 192.168.1.10:3015
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 3015 -j DNAT --to-destination 192.168.4.10:3015
+iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-destination 192.168.1.10:2024
+
 iptables-save > /root/rules
 
 
@@ -414,10 +399,8 @@ FLUSH PRIVILEGES;
 exit
 
 curl -L https://github.com/moodle/moodle/archive/refs/tags/v4.5.0.zip > /root/moodle.zip
-
 unzip /root/moodle.zip -d /var/www/html
 mv /var/www/html/moodle-4.5.0/* /var/www/html/
-ls /var/www/html
 
 mkdir /var/www/moodledata
 chown apache2:apache2 /var/www/html
@@ -427,9 +410,7 @@ mcedit /etc/php/8.2/apache2-mod_php/php.ini
 F7  max_input_vars
 max_input_vars = 5000
 
-cd /var/www/html
-ls
-rm index.html
+rm /var/www/html/index.html
 systemctl restart httpd2
 
 HQ-CLI
@@ -440,6 +421,7 @@ http://192.168.1.10/install.php
 Пароль:				P@ssw0rd
 
 vim /var/www/html/config.php
+
 -----$CFG->dbtype	= 'mariadb';
 
 
