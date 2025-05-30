@@ -14,7 +14,8 @@ vim /etc/net/ifaces/ens18/ipv4route
 
 vim /etc/resolv.conf
       nameserver 8.8.8.8
-
+      nameserver 127.0.0.1
+	search au-team.irpo
 
 vim /etc/sysconfig/network 
       HOSTNAME=hq-srv.au-team.irpo
