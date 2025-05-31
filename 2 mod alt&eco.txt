@@ -9,7 +9,7 @@ apt-get update && apt-get install admc sudo libsss_sudo nfs-clients systemd-time
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
-apt-get update && apt-get install -y bind bind-utils task-samba-dc systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose  sudo-samba-schema 
+apt-get update && apt-get install -y bind bind-utils task-samba-dc systemd-timesyncd ansible sshpass python-module-jinja2 docker-engine docker-compose  sudo-samba-schema -y
 
 
 
