@@ -1,5 +1,8 @@
-HQ-RTR 
-apt-get update && apt-get install docker-engine docker-compose-v2 chrony  -y
+ISP
+apt-get update && apt-get install nginx chorny -y
+
+#HQ-RTR 
+#apt-get update && apt-get install docker-engine docker-compose-v2 chrony  -y
 
 HQ-SRV 
 apt-get update && apt-get install fdisk nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
@@ -442,26 +445,35 @@ HQ-SRV
 mcedit /var/www/html/config.php
 $CFG->wwwroot	= ‘http://moodle.au-team.irpo’;
 
-HQ-RTR
-apt-get install docker-engine docker-compose-v2
 
-systemctl enable --now docker
-mkdir 
-nano proxy.yml
------------------------------
-services:
-  app:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
-    volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
-----------------------
-docker compose -f proxy.yml up -d
+nano /etc/nginx/sites-available/proxy
+server {
+  listen 80;
+  server_name moodle.au-team.irpo;
+  location / {
+    proxy_pass http://192.168.1.2:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $remote_addr;
+   }
+}
+
+server {
+  listen 80;
+  server_name wiki.au-team.irpo;
+  location / {
+    proxy_pass http://192.168.4.2:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $remote_addr;
+  }
+}
+
+rm -rf /etc/nginx/sites-available/default
+rm -rf /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/proxy /etc/nginx/sites-enabled
+ls -la /etc/nginx/sites-enabled
+systemctl restart nginx
 
 HQ-CLI
 moodle.au-team.irpo и 
