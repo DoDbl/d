@@ -1,0 +1,478 @@
+ISP
+apt-get update && apt-get install nginx chorny -y
+
+#HQ-RTR 
+#apt-get update && apt-get install docker-engine docker-compose-v2 chrony  -y
+
+HQ-SRV 
+apt-get update && apt-get install fdisk nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
+
+HQ-CLI 
+apt-get update && apt-get install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
+
+#BR-RTR 
+#apt-get update && apt-get install systemd-timesyncd -y
+
+BR-SRV 
+apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
+apt-get update && apt-get install -y bind bind-utils task-samba-dc systemd-timesyncd ansible python-module-jinja2 docker-engine docker-compose  sudo-samba-schema 
+
+
+
+-------------- 1 Настройка доменного контроллера Samba
+BR-SRV
+apt-get install task-samba-dc -y
+
+rm -f /etc/samba/smb.conf && rm -rf /var/lib/samba && rm -rf /var/cache/samba
+
+mkdir -p /var/lib/samba/sysvol
+
+
+samba-tool domain provision
+	AU-TEAM.IRPO
+	AU-TEAM
+	dc
+	SAMBA_INTERNAL
+	192.168.1.10 
+	P@ssw0rd
+
+mv -f /var/lib/samba/private/krb5.conf /etc/krb5.conf
+systemctl enable --now samba
+
+echo "search au-team.irpo" > /etc/net/ifaces/ens19/resolv.conf
+echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
+systemctl restart network
+kinit administrator@AU-TEAM.IRPO
+
+
+BR-SRV
+#  export EDITOR=vim
+#  сrontab -e
+◘
+#@reboot /bin/systemctl restart network
+#@reboot /bin/systemctl restart samba
+◘
+
+
+samba-tool user add user1.hq P@ssw0rd
+samba-tool user add user2.hq P@ssw0rd
+samba-tool user add user3.hq P@ssw0rd
+samba-tool user add user4.hq P@ssw0rd
+samba-tool user add user5.hq P@ssw0rd
+
+samba-tool group add hq
+
+samba-tool group addmembers hq user1.hq,user2.hq,user3.hq,user4.hq,user5.hq
+
+HQ-CLI
+acc
+Аутентификация
+Домен AD
+	AU-TEAM.IRPO
+	AU-TEAM
+	hq-cli
+Administrator
+P@ssw0rd
+
+
+BR-SRV
+
+
+apt-get install sudo-samba-schema -y
+sudo-schema-apply
+
+yes
+Administrator
+P@ssw0rd
+ok
+
+create-sudo-rule
+
+Имя правила	: prava_hq
+sudoHost 	: ALL
+sudoCommand	: /bin/cat
+sudoUser	: %hq
+
+HQ-CLI
+su -
+
+apt-get install admc -y
+kinit administrator
+P@ssw0rd
+
+admc
+Настройки-Доп возм-sudoers-Атрибуты-sudoOption
+!authenticate
+Настройки-Доп возм-sudoers-Атрибуты-sudoCommand
+/bin/cat
+/bin/grep
+/usr/bin/id
+
+
+
+control sudo public
+
+vim /etc/sssd/sssd.conf
+	services = nss, pam, sudo
+	sudo_provider = ad
+
+vim /etc/nsswitch.conf
+	sudoers: files sss
+
+reboot
+Ctrl+Alt+F1 (под рутом)
+rm -rf /var/lib/sss/db/*
+sss_cache -E
+systemctl restart sssd
+
+Ctrl+Alt+F2 (под доменным user1.hq)
+sudo -l -U user1.hq
+
+Ctrl+Alt+F1 (релогин под user1.hq)
+sudo cat /etc/passwd | sudo grep root && sudo id root
+
+
+BR-SRV
+curl -L https://bit.ly/3C1nEYz > /root/users.zip
+unzip /root/users.zip
+mv /root/Users.csv /opt/Users.csv
+
+vim import
+****
+#!/bin/bash
+csv_file="/opt/Users.csv"
+while IFS=";" read -r firstName lastName role phone ou street zip city country password; do
+	if [ "$firstName" == "First Name" ]; then
+		continue
+	fi
+	username="${firstName,,}.${lastName,,}"
+	sudo samba-tool user add "$username" P@ssw0rd
+done < "$csv_file"
+******
+chmod +x /root/import
+bash /root/import
+
+
+-------------- 2 Конфигурация файлового хранилища 
+
+HQ-SRV
+Ctrl+D
+
+lsblk
+mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sd[b-d]
+cat /proc/mdstat
+
+mdadm --detail -scan --verbose > /etc/mdadm.conf
+fdisk /dev/md0
+n
+Enter x4
+w
+
+mkfs.ext4 /dev/md0p1
+
+vim /etc/fstab
+/dev/md0p1	/raid5	ext4	defaults	0	0
+
+mkdir /raid5
+mount -a
+
+
+apt-get install nfs-server
+
+mkdir /raid0/nfs
+chown 99:99 /raid5/nfs
+chmod 777 /raid5/nfs
+
+vim /etc/exports
+/raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
+
+exportfs -a
+exportfs -v
+
+systemctl enable nfs
+systemctl restart nfs
+
+
+HQ-CLI
+
+apt-get install nfs-clients
+
+mkdir -p /mnt/nfs
+vim /etc/fstab
+
+192.168.1.10:/raid5/nfs	/mnt/nfs	nfs	defaults	 0	 0
+
+mount -a
+mount -v
+
+touch /mnt/nfs/cock
+
+--------------  3 Настройка chrony
+
+HQ-RTR
+nano /etc/chrony/chrony.conf
+server 127.0.0.1 iburst
+local stratum 5
+allow 0/0
+#pool 2.debian
+#rtcsync
+
+systemctl enable --now chrony
+systemctl restart chrony
+timedatectl set-ntp 0
+
+HQ-CLI&HQ-SRV&BR-SRV
+
+apt-get install systemd-timesyncd -y
+vim /etc/systemd/timesyncd.conf
+NTP=192.168.1.1
+systemctl enable --now systemd-timesyncd
+
+
+-------------- 4 Сконфигурируйте ansible
+BR-SRV
+apt-repo rm rpm http://altrepo.ru/local-p10
+
+apt-get update
+apt-get install ansible
+ssh-keygen -t rsa
+Enter X4
+ssh-copy-id -p2024 sshuser@192.168.1.10
+ssh-copy-id -p2024 sshuser@192.168.1.1 (-p22)
+ssh-copy-id -p2024 sshuser@192.168.2.3
+ssh-copy-id -p2024 sshuser@192.168.4.1
+
+
+
+vim /etc/ansible/hosts
+	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
+	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=2024 
+	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
+	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
+
+ansible all -i /etc/ansible/host -m ping
+
+-------------- 5 Развертывание Docker
+HQ-CLI
+su -
+ssh sshuser@192.168.4.10 -p 2024
+BR-SRV
+
+apt-get install docker-engine docker-compose
+systemctl enable --now docker
+systemctl status docker
+mkdir /home/sshuser/wiki
+
+google-dockerhub-mediawiki
+nano /home/sshuser/wiki/wiki.yml
+**************
+services:
+  mediawiki:
+    container_name: wiki
+    image: mediawiki
+    restart: always
+    ports:
+      - 8080:80
+    links:
+      - database
+    volumes:
+      - ./images:/var/www/html/images
+      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
+  # This key also defines the name of the database host used during setup instead of the default "localhost"
+  database:
+    container_name: mariadb 
+    image: mariadb
+    restart: always
+    environment:
+      # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
+      MYSQL_DATABASE: mediawiki
+      MYSQL_USER: wiki
+      MYSQL_PASSWORD: WikiP@ssw0rd
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - ./db:/var/lib/mysql
+
+volumes:
+  images:
+  db:
+
+***********************
+docker pull mediawiki
+docker pull mariadb
+
+
+
+docker compose -f /home/sshuser/wiki/wiki.yml up -d
+
+HQ-CLI
+192.168.4.10:8080
+Хост базы данных:
+mariadb
+
+Имя базы данных (без дефисов):
+mediawiki
+
+Имя пользователя базы данных:
+wiki
+Пароль базы данных:
+WikiP@ssw0rd
+
+----Далее
+
+wiki (можно своё название)
+Учетка админа
+wiki
+Пароль:
+WikiP@ssw0rd
+
+
+scp -P 2024 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
+       
+nano /home/sshuser/wiki/wiki.yml
+**Убрать комментарий  # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+
+vim /root/wiki.yml
+docker compose -f wiki.yml up -d
+CLI
+192.168.4.10:8080
+
+-------------- 6 Статическая трансляция портов
+
+BR-RTR
+iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
+iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
+#iptables-save > /root/rules
+
+HQ-RTR
+#iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-destination 192.168.1.10:2024
+#iptables-save > /root/rules
+
+
+HQ-CLI
+ssh -p 2024 sshuser@192.168.4.1
+
+
+-------------- 7 Запустите сервис moodle
+
+HQ-SRV
+
+apt-get install apache2 php8.2 
+apache2-mod_php8.2
+mariadb-server 
+php8.2-mysqli 
+
+
+systemctl enable -–now httpd2 mysqld
+
+mysql_secure_installation
+Enter
+Y
+P@ssw0rd
+Y
+
+mariadb -u root -p
+CREATE DATABASE moodledb;
+CREATE USER moodle IDENTIFIED BY ‘P@ssw0rd’;
+GRANT ALL PRIVILEGES ON moodledb.* TO moodle;
+FLUSH PRIVILEGES;
+exit
+
+curl -L https://github.com/moodle/moodle/archive/refs/tags/v4.5.0.zip > /root/moodle.zip
+unzip /root/moodle.zip -d /var/www/html
+mv /var/www/html/moodle-4.5.0/* /var/www/html/
+
+mkdir /var/www/moodledata
+chown apache2:apache2 /var/www/html
+chown apache2:apache2 /var/www/moodledata
+
+mcedit /etc/php/8.2/apache2-mod_php/php.ini
+F7  max_input_vars
+max_input_vars = 5000
+
+rm /var/www/html/index.html
+systemctl restart httpd2
+
+HQ-CLI
+http://192.168.1.10/install.php
+
+Название базы данных:		moodledb
+Пользователь базы данных:	moodle
+Пароль:				P@ssw0rd
+
+vim /var/www/html/config.php
+
+-----$CFG->dbtype	= 'mariadb';
+
+
+далее
+Логин:			admin
+Новый пароль:		P@ssw0rd
+Имя:			Администратор 
+Фамилия:		Пользователь 
+Адрес электронной 	test.test@mail.ru
+
+Полное название сайта:	moodle 
+Краткое сайта:		site
+Настройки 		Азия/Екат 
+Контакты поддержки:	test.test@mail.ru 
+
+
+-------------- 8 Обратный прокси-сервер на HQ-RTR
+
+HQ-SRV
+
+mcedit /var/www/html/config.php
+$CFG->wwwroot	= ‘http://moodle.au-team.irpo’;
+
+HQ-RTR
+apt-get install docker-engine docker-compose-v2
+nano proxy.yml
+--------------
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+--------------
+
+HQ-CLI
+moodle.au-team.irpo и 
+wiki.au-team.irpo 
+
+-------------- 9 Яндекс Браузер
+
+HQ-CLI
+
+apt-get install yandex-browser-stable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
