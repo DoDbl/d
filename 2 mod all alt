@@ -1,8 +1,5 @@
-ISP
-apt-get update && apt-get install nginx chorny -y
-
-#HQ-RTR 
-#apt-get update && apt-get install docker-engine docker-compose-v2 chrony  -y
+HQ-RTR 
+apt-get update && apt-get install docker-engine docker-compose-v2 chrony  -y
 
 HQ-SRV 
 apt-get update && apt-get install fdisk nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
@@ -10,8 +7,8 @@ apt-get update && apt-get install fdisk nfs-server systemd-timesyncd moodle mood
 HQ-CLI 
 apt-get update && apt-get install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
 
-#BR-RTR 
-#apt-get update && apt-get install systemd-timesyncd -y
+BR-RTR 
+apt-get update && apt-get install systemd-timesyncd -y
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
