@@ -426,30 +426,3 @@ wiki.au-team.irpo
 HQ-CLI
 
 apt-get install yandex-browser-stable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
