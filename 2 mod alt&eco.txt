@@ -5,7 +5,7 @@ HQ-SRV
 apt-get update && apt-get install fdisk nfs-server systemd-timesyncd moodle moodle-apache2  mariadb-server php8.2-mysqlnd-mysqli -y 
 
 HQ-CLI 
-apt-get update && apt-get install admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
+apt-get update && apt-get install docker-engine docker-compose-v2 admc sudo libsss_sudo nfs-clients systemd-timesyncd yandex-browser-stable admc gpui libnss-role gpupdate -y
 
 BR-SRV 
 apt-repo add rpm http://altrepo.ru/local-p10 noarch local-p10
@@ -38,14 +38,6 @@ echo "nameserver 127.0.0.1" >> /etc/net/ifaces/ens19/resolv.conf
 systemctl restart network
 kinit administrator@AU-TEAM.IRPO
 
-
-BR-SRV
-#  export EDITOR=vim
-#  сrontab -e
-◘
-#@reboot /bin/systemctl restart network
-#@reboot /bin/systemctl restart samba
-◘
 
 
 samba-tool user add user1.hq P@ssw0rd
@@ -113,18 +105,13 @@ vim /etc/sssd/sssd.conf
 vim /etc/nsswitch.conf
 	sudoers: files sss
 
-reboot
-Ctrl+Alt+F1 (под рутом)
+
 rm -rf /var/lib/sss/db/*
 sss_cache -E
 systemctl restart sssd
 
 Ctrl+Alt+F2 (под доменным user1.hq)
 sudo -l -U user1.hq
-
-Ctrl+Alt+F1 (релогин под user1.hq)
-sudo cat /etc/passwd | sudo grep root && sudo id root
-
 
 BR-SRV
 curl -L https://bit.ly/3C1nEYz > /root/users.zip
@@ -171,21 +158,16 @@ mkdir /raid5
 mount -a
 
 
-apt-get install nfs-server
-
-mkdir /raid0/nfs
+mkdir /raid5/nfs
 chown 99:99 /raid5/nfs
 chmod 777 /raid5/nfs
 
 vim /etc/exports
 /raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
 
-exportfs -a
-exportfs -v
-
+exportfs -av
 systemctl enable nfs
 systemctl restart nfs
-
 
 HQ-CLI
 
@@ -196,14 +178,7 @@ vim /etc/fstab
 
 192.168.1.10:/raid5/nfs	/mnt/nfs	nfs	defaults	 0	 0
 
-mount -a
-mount -v
-
-touch /mnt/nfs/cock
-
-BR-SRV
-ls /raid0/nfs
-
+mount -av
 --------------  3 Настройка chrony
 
 ISP
@@ -235,20 +210,12 @@ ntp server 172.16.4.1
 -------------- 4 Сконфигурируйте ansible
 BR-SRV
 apt-repo rm rpm http://altrepo.ru/local-p10
+apt-get update
+apt-get install ansible
 
 BR-RTR&HQ-RTR
 security none
 write
-
-apt-get update
-apt-get install ansible
-ssh-keygen -t rsa
-Enter X4
-ssh-copy-id -p2024 sshuser@192.168.1.10
-ssh-copy-id -p2024 sshuser@192.168.1.1 (-p22)
-ssh-copy-id -p2024 sshuser@192.168.2.3
-ssh-copy-id -p2024 sshuser@192.168.4.1
-
 vim /etc/ansible/ansible.cfg
 uncomment "Inventory & host_key_checking"
 
@@ -312,10 +279,6 @@ volumes:
   db:
 
 ***********************
-docker pull mediawiki
-docker pull mariadb
-
-
 
 docker compose -f /home/sshuser/wiki/wiki.yml up -d
 
@@ -340,9 +303,7 @@ wiki
 Пароль:
 WikiP@ssw0rd
 
-
-scp -P 2024 /home/user/Загрузки/LocalSettings.php sshuser@192.168.4.10:/home/sshuser/wiki/
-       
+      
 nano /home/sshuser/wiki/wiki.yml
 **Убрать комментарий  # - ./LocalSettings.php:/var/www/html/LocalSettings.php
 
@@ -357,16 +318,8 @@ BR-RTR
 ip nat source static tcp 192.168.4.10 8080 172.16.5.2 80
 ip nat source static tcp 192.168.4.10 2024 172.16.5.2 2024
 
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
-#iptables-save > /root/rules
-
 HQ-RTR
 ip nat source static tcp 192.168.1.10 2024 172.16.4.2 2024
-
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-destination 192.168.1.10:2024
-#iptables-save > /root/rules
-
 
 HQ-CLI
 ssh -p 2024 sshuser@192.168.4.1
@@ -376,13 +329,7 @@ ssh -p 2024 sshuser@192.168.4.1
 
 HQ-SRV
 
-apt-get install apache2 php8.2 
-apache2-mod_php8.2
-mariadb-server 
-php8.2-mysqli 
-
-
-systemctl enable -–now httpd2 mysqld
+systemctl enable --now httpd2 mysqld mariadb
 
 mysql_secure_installation
 Enter
@@ -392,7 +339,7 @@ Y
 
 mariadb -u root -p
 CREATE DATABASE moodledb;
-CREATE USER moodle IDENTIFIED BY ‘P@ssw0rd’;
+CREATE USER moodle IDENTIFIED BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES ON moodledb.* TO moodle;
 FLUSH PRIVILEGES;
 exit
@@ -409,20 +356,16 @@ mcedit /etc/php/8.2/apache2-mod_php/php.ini
 F7  max_input_vars
 max_input_vars = 5000
 
-rm /var/www/html/index.html
 systemctl restart httpd2
 
 HQ-CLI
 http://192.168.1.10/install.php
 
+DB выбрать MARIADB
+
 Название базы данных:		moodledb
 Пользователь базы данных:	moodle
 Пароль:				P@ssw0rd
-
-vim /var/www/html/config.php
-
------$CFG->dbtype	= 'mariadb';
-
 
 далее
 Логин:			admin
