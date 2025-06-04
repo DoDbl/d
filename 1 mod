@@ -5,6 +5,7 @@ mkdir /etc/net/ifaces/ens19
 mkdir /etc/net/ifaces/ens20
 cp /etc/net/ifaces/ens18/options /etc/net/ifaces/ens19/options
 nano /etc/net/ifaces/ens19/options
+      BOOTPROTO=staic
       DISABLED=no
       CONFIG_IPV4=yes
 cp /etc/net/ifaces/ens19/options /etc/net/ifaces/ens20/options
@@ -161,7 +162,7 @@ vim /etc/resolv.conf
     nameserver 8.8.8.8
     search au-team.irpo
 vim /etc/net/ifaces/ens19/options
-    dhcp-static
+    BOOTPROTO=staic
 vim /etc/net/ifaces/ens19/ipv4address
     192.168.1.10/26
 vim /etc/net/ifaces/ens19/ipv4route
@@ -219,7 +220,7 @@ vim /etc/resolv.conf
     nameserver 192.168.1.10
     search au-team.irpo
 vim /etc/net/ifaces/ens19/options
-    dhcp-static
+    BOOTPROTO=staic
 vim /etc/net/ifaces/ens19/ipv4address
     192.168.4.10/27
 vim /etc/net/ifaces/ens19/ipv4route
