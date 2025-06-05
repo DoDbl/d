@@ -329,7 +329,7 @@ ssh -p 2024 sshuser@192.168.4.1
 
 HQ-SRV
 
-systemctl enable --now httpd2 mysqld mariadb
+systemctl enable --now httpd2 mysqld
 
 mysql_secure_installation
 Enter
