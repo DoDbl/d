@@ -22,9 +22,6 @@ apt-get install task-samba-dc -y
 
 rm -f /etc/samba/smb.conf && rm -rf /var/lib/samba && rm -rf /var/cache/samba
 
-mkdir -p /var/lib/samba/sysvol
-
-
 samba-tool domain provision
 	AU-TEAM.IRPO
 	AU-TEAM
@@ -73,8 +70,6 @@ P@ssw0rd
 
 
 BR-SRV
-
-
 apt-get install sudo-samba-schema -y
 sudo-schema-apply
 
@@ -116,8 +111,6 @@ vim /etc/sssd/sssd.conf
 vim /etc/nsswitch.conf
 	sudoers: files sss
 
-reboot
-Ctrl+Alt+F1 (под рутом)
 rm -rf /var/lib/sss/db/*
 sss_cache -E
 systemctl restart sssd
@@ -153,12 +146,8 @@ bash /root/import
 -------------- 2 Конфигурация файлового хранилища 
 
 HQ-SRV
-Ctrl+D
-
 lsblk
 mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sd[b-d]
-cat /proc/mdstat
-
 mdadm --detail -scan --verbose > /etc/mdadm.conf
 fdisk /dev/md0
 n
@@ -166,13 +155,12 @@ Enter x4
 w
 
 mkfs.ext4 /dev/md0p1
-
 vim /etc/fstab
+
 /dev/md0p1	/raid5	ext4	defaults	0	0
 
 mkdir /raid5
 mount -a
-
 
 apt-get install nfs-server
 
@@ -183,8 +171,7 @@ chmod 777 /raid5/nfs
 vim /etc/exports
 /raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
 
-exportfs -a
-exportfs -v
+exportfs -aм
 
 systemctl enable nfs
 systemctl restart nfs
@@ -200,9 +187,7 @@ vim /etc/fstab
 192.168.1.10:/raid5/nfs	/mnt/nfs	nfs	defaults	 0	 0
 
 mount -a
-mount -v
 
-touch /mnt/nfs/cock
 
 --------------  3 Настройка chrony
 
@@ -338,11 +323,11 @@ CLI
 BR-RTR
 iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 80 -j DNAT --to-destination 192.168.4.10:8080
 iptables -t nat -A PREROUTING -p tcp -d 192.168.4.1 --dport 2024 -j DNAT --to-destination 192.168.4.10:2024
-#iptables-save > /root/rules
+iptables-save > /root/rules
 
 HQ-RTR
-#iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-destination 192.168.1.10:2024
-#iptables-save > /root/rules
+iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-destination 192.168.1.10:2024
+iptables-save > /root/rules
 
 
 HQ-CLI
@@ -359,7 +344,7 @@ mariadb-server
 php8.2-mysqli 
 
 
-systemctl enable -–now httpd2 mysqld
+systemctl enable --now httpd2 mysqld
 
 mysql_secure_installation
 Enter
@@ -369,7 +354,7 @@ Y
 
 mariadb -u root -p
 CREATE DATABASE moodledb;
-CREATE USER moodle IDENTIFIED BY ‘P@ssw0rd’;
+CREATE USER moodle IDENTIFIED BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES ON moodledb.* TO moodle;
 FLUSH PRIVILEGES;
 exit
@@ -391,15 +376,10 @@ systemctl restart httpd2
 
 HQ-CLI
 http://192.168.1.10/install.php
-
+DB выбрать Mariadb
 Название базы данных:		moodledb
 Пользователь базы данных:	moodle
 Пароль:				P@ssw0rd
-
-vim /var/www/html/config.php
-
------$CFG->dbtype	= 'mariadb';
-
 
 далее
 Логин:			admin
