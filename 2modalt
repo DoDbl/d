@@ -70,7 +70,6 @@ P@ssw0rd
 
 
 BR-SRV
-apt-get install sudo-samba-schema -y
 sudo-schema-apply
 
 yes
@@ -147,7 +146,7 @@ bash /root/import
 
 HQ-SRV
 lsblk
-mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sd[b-d]
+mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sd[a,c,d]
 mdadm --detail -scan --verbose > /etc/mdadm.conf
 fdisk /dev/md0
 n
@@ -169,18 +168,12 @@ chown 99:99 /raid5/nfs
 chmod 777 /raid5/nfs
 
 vim /etc/exports
-/raid5/nfs 192.168.2.0/28(rw,sync,no_subtree_check)
+/raid5/nfs 192.168.2.0/24(rw,sync,no_subtree_check)
 
-exportfs -aм
-
+exportfs -av
 systemctl enable nfs
 systemctl restart nfs
-
-
 HQ-CLI
-
-apt-get install nfs-clients
-
 mkdir -p /mnt/nfs
 vim /etc/fstab
 
@@ -213,39 +206,29 @@ systemctl enable --now systemd-timesyncd
 
 -------------- 4 Сконфигурируйте ansible
 BR-SRV
-apt-repo rm rpm http://altrepo.ru/local-p10
-
-apt-get update
-apt-get install ansible
 ssh-keygen -t rsa
 Enter X4
 ssh-copy-id -p2024 sshuser@192.168.1.10
-ssh-copy-id -p2024 sshuser@192.168.1.1 (-p22)
-ssh-copy-id -p2024 sshuser@192.168.2.3
-ssh-copy-id -p2024 sshuser@192.168.4.1
+ssh-copy-id -p2024 net_admin@192.168.1.1
+ssh-copy-id -p2024 sshuser@192.168.2.10
+ssh-copy-id -p2024 net_admin@192.168.4.1
 
 
 
 vim /etc/ansible/hosts
-	hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
-	hq-cli ansible_host=sshuser@192.168.2.5 ansible_port=2024 
-	hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=22
-	br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=22
+hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
+hq-cli ansible_host=sshuser@192.168.2.10 ansible_port=2024 
+hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=2024
+br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=2024
 
 ansible all -i /etc/ansible/host -m ping
 
 -------------- 5 Развертывание Docker
-HQ-CLI
-su -
-ssh sshuser@192.168.4.10 -p 2024
 BR-SRV
-
-apt-get install docker-engine docker-compose
 systemctl enable --now docker
 systemctl status docker
 mkdir /home/sshuser/wiki
 
-google-dockerhub-mediawiki
 nano /home/sshuser/wiki/wiki.yml
 **************
 services:
@@ -259,7 +242,7 @@ services:
       - database
     volumes:
       - ./images:/var/www/html/images
-      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
+#      - ./LocalSettings.php:/var/www/html/LocalSettings.php
   # This key also defines the name of the database host used during setup instead of the default "localhost"
   database:
     container_name: mariadb 
@@ -337,12 +320,6 @@ ssh -p 2024 sshuser@192.168.4.1
 -------------- 7 Запустите сервис moodle
 
 HQ-SRV
-
-apt-get install apache2 php8.2 
-apache2-mod_php8.2
-mariadb-server 
-php8.2-mysqli 
-
 
 systemctl enable --now httpd2 mysqld
 
@@ -427,3 +404,27 @@ wiki.au-team.irpo
 HQ-CLI
 
 apt-get install yandex-browser-stable
+
+---------------------------------------------
+no-resolv
+no-poll
+no-hosts
+#listen-address=192.168.1.10
+server=/au-team.irpo/192.168.4.10
+server=8.8.8.8
+
+cache-size=1000
+all-servers
+no-negcache
+
+host-record=hq-rtr.au-team.irpo,192.168.1.1
+host-record=hq-srv.au-team.irpo,192.168.1.10
+host-record=hq-cli.au-team.irpo,192.168.2.10
+
+address=/br-rtr.au-team.irpo/192.168.4.1
+address=/br-srv.au-team.irpo/192.168.4.10
+
+cname=moodle.au-team.irpo,hq-rtr.au-team.irpo
+cname=wiki.au-team.irpo,hq-rtr.au-team.irpo
+---------------------------------------------------------
+
