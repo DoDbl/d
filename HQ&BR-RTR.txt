@@ -27,7 +27,7 @@ ip nat outside
 exit
 dhcp-server 100
 static ip 192.168.2.3
-client-id mac BC24.1196.CC28
+client-id mac <>
 mask 28
 gateway 192.168.2.1
 domain-name au-team.irpo
@@ -58,19 +58,19 @@ encapsulation untagged
 c i i isp
 port ge0
 service-instance ge0/srv
-encapsulation dot1q 10 exact 
+encapsulation dot1q 100 exact 
 rewrite pop 1
 c i i srv
 exit
 service-instance ge0/cli
-encapsulation dot1q 20 exact 
+encapsulation dot1q 200 exact 
 rewrite pop 1
 c i i cli
 exit
-service-instance ge0/management
+service-instance ge0/manage
 encapsulation dot1q 999 exact 
 rewrite pop 1
-c i i management 
+c i i manage 
 exit
 exit
 write
