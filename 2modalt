@@ -214,14 +214,17 @@ ssh-copy-id -p2024 sshuser@192.168.2.10
 ssh-copy-id -p2024 net_admin@192.168.4.1
 
 
+apt-get install sshpass
 
 vim /etc/ansible/hosts
-hq-srv ansible_host=sshuser@192.168.1.10 ansible_port=2024
-hq-cli ansible_host=sshuser@192.168.2.10 ansible_port=2024 
-hq-rtr ansible_host=net_admin@192.168.1.1 ansible_port=2024
-br-rtr ansible_host=net_admin@192.168.4.1 ansible_port=2024
+hq-srv ansible_host=sshuser@192.168.1.10 ansible_password=P@$$w0rd ansible_port=2024
+hq-cli ansible_host=user@192.168.2.10 ansible_password=user ansible_port=22 
+hq-rtr ansible_host=net_admin@192.168.1.1 ansible_password=P@$$w0rd ansible_port=2024
+br-rtr ansible_host=net_admin@192.168.4.1 ansible_password=P@$$w0rd ansible_port=2024
 
 ansible all -i /etc/ansible/host -m ping
+
+#HQ-RTR ansible_host=net_admin@172.16.4.2 ansible_password=P@$$w0rd  ansible_network_os=ios ansible_connection=network_cli
 
 -------------- 5 Развертывание Docker
 BR-SRV
@@ -313,6 +316,8 @@ iptables -t nat -A PREROUTING -p tcp -d 192.168.1.1 --dport 2024 -j DNAT --to-de
 iptables-save > /root/rules
 
 
+#ip nat source static tcp 192.168.1.10 2024 172.16.4.2 2024
+
 HQ-CLI
 ssh -p 2024 sshuser@192.168.4.1
 
@@ -396,8 +401,13 @@ services:
 --------------
 
 HQ-CLI
-moodle.au-team.irpo и 
-wiki.au-team.irpo 
+192.168.1.1:81
+Логин: admin@example.com
+Пароль: changeme
+
+hosts- add host
+moodle.au-team.irpo - 192.168.1.10:80
+wiki.au-team.irpo - 192.168.4.10:8080
 
 -------------- 9 Яндекс Браузер
 
