@@ -217,10 +217,15 @@ ssh-copy-id -p2024 net_admin@192.168.4.1
 apt-get install sshpass
 
 vim /etc/ansible/hosts
+----
 hq-srv ansible_host=sshuser@192.168.1.10 ansible_password=P@$$w0rd ansible_port=2024
 hq-cli ansible_host=user@192.168.2.10 ansible_password=user ansible_port=22 
 hq-rtr ansible_host=net_admin@192.168.1.1 ansible_password=P@$$w0rd ansible_port=2024
 br-rtr ansible_host=net_admin@192.168.4.1 ansible_password=P@$$w0rd ansible_port=2024
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+-------
 
 ansible all -i /etc/ansible/host -m ping
 
